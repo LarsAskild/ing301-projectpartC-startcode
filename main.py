@@ -45,5 +45,38 @@ def read_floor(fid: int, response: Response):
     return smart_house.floors[fid]
 
 
+@app.get("/smarthouse/floor/{fid}/room")
+def read_rooms(fid: int, response: Response):
+    return smart_house.floors[fid].rooms
+
+
+@app.get("/smarthouse/floor/{fid}/room/{rid}")
+def read_room(fid: int, rid: int, response: Response):
+    return smart_house.floors[fid].rooms[rid]
+
+
+@app.get("/smarthouse/device")
+def read_devices():
+    device = []
+    for floor in smart_house.floors:
+        for room in floor.rooms:
+            for device_ in room.devices:
+                device.append(device_)            
+    return device
+
+
+@app.get("/smarthouse/device/{did}")
+def read_room(did: int, response: Response):
+    device = []
+    for floor in smart_house.floors:
+        for room in floor.rooms:
+            for device_ in room.devices:
+                if(device_.did == did):
+                    device = device_
+    return device
+
+
+
+
 if __name__ == '__main__':
     uvicorn.run(app, host="127.0.0.1", port=8000)
