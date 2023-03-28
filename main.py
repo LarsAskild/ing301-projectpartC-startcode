@@ -35,5 +35,15 @@ def read_smarthouse():
     return smart_house
 
 
+@app.get("/smarthouse/floor/")
+def read_floors():
+    return smart_house.floors
+
+
+@app.get("/smarthouse/floor/{fid}")
+def read_floor(fid: int, response: Response):
+    return smart_house.floors[fid]
+
+
 if __name__ == '__main__':
     uvicorn.run(app, host="127.0.0.1", port=8000)
