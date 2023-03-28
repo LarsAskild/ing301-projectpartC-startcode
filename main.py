@@ -98,10 +98,108 @@ def read_room(did: int, response: Response):
     return None
 
 
+@app.get("/smarthouse/sensor/{did}/current")
+def read_current_measurement(did: int, response: Response):
+    value = []
+
+    for floor in smart_house.floors:
+        for room in floor.rooms:
+            for device_ in room.devices:
+                if(device_.did == did):
+                    if(device_.is_sensor()):
+                        value = device_.get_current_value()
+                    
+    if (value == []):
+        response.status_code = status.HTTP_404_NOT_FOUND
+    else:
+            return value
+    return None
+
+@app.get("/smarthouse/sensor/{did}/{n}")
+def read_n_measurements(did: int, n: int, response: Response):
+    value = []
+    for floor in smart_house.floors:
+        for room in floor.rooms:
+            for device_ in room.devices:
+                if(device_.did == did):
+                    if(device_.is_sensor()):
+                            if(n < 0 or n > len(device_.get_current_values())):
+                                value   = []
+                            else:
+                                for i in range(n):
+                                    value.append(device_.get_current_values()[i])
+                
+    if (value == []):
+        response.status_code = status.HTTP_404_NOT_FOUND
+    else:
+            return value
+    return None
 
 
+@app.get("/smarthouse/actuator/{did}/current")
+def read_actuator_state(did: int, response: Response):
+    value = []
 
+    for floor in smart_house.floors:
+        for room in floor.rooms:
+            for device_ in room.devices:
+                if(device_.did == did):
+                    if(device_.is_actuator()):
+                        value = device_.get_current_state()
+                    
+    if (value == []):
+        response.status_code = status.HTTP_404_NOT_FOUND
+    else:
+            return value
+    return None
 
+@app.delete("/smarthouse/sensor/{did}/oldest")
+def delete_oldest_value(did: int, response: Response):
+    value = []
+
+    for floor in smart_house.floors:
+        for room in floor.rooms:
+            for device_ in room.devices:
+                if(device_.did == did):
+                    if(device_.is_sensor()):
+                        device_.delete_oldest_value()
+                        value = "Deleted succesfully!"
+                    
+    if (value == []):
+        response.status_code = status.HTTP_404_NOT_FOUND
+    else:
+            return value
+    return None
+
+@app.post("/smarthouse/sensor/{did}/current" , status_code=201)
+def Add_measurement(did: int, Input_value: SensorMeasurement):
+    value = []
+    for floor in smart_house.floors:
+        for room in floor.rooms:
+            for device_ in room.devices:
+                if(device_.did == did):
+                    if(device_.is_sensor()):
+                        device_.set_current_value(Input_value)
+                        value = "Value added succesfully!"
+                    
+    if (value == []):
+        return None
+    return value
+
+@app.put("/smarthouse/device/{did}")
+def update_actuator_state(did: int, InputValue : ActuatorState ,response: Response):
+    value = []
+    for floor in smart_house.floors:
+        for room in floor.rooms:
+            for device_ in room.devices:
+                if(device_.did == did):
+                    if(device_.is_actuator()):
+                        device_.set_current_state(InputValue.state)
+                        value = "State updated succesfully!"
+                    
+    if (value == []):
+        return None
+    return value
 
 if __name__ == '__main__':
     uvicorn.run(app, host="127.0.0.1", port=8000)
