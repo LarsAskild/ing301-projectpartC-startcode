@@ -42,18 +42,35 @@ def read_floors():
 
 @app.get("/smarthouse/floor/{fid}")
 def read_floor(fid: int, response: Response):
-    return smart_house.floors[fid]
-
+    if(fid < 0 or fid > len(smart_house.floors)-1):
+        response.status_code = status.HTTP_404_NOT_FOUND
+    else:
+        return smart_house.floors[fid]
+    return None
 
 @app.get("/smarthouse/floor/{fid}/room")
 def read_rooms(fid: int, response: Response):
-    return smart_house.floors[fid].rooms
-
+    if(fid < 0 or fid > len(smart_house.floors)-1):
+        response.status_code = status.HTTP_404_NOT_FOUND
+    else:
+        return smart_house.floors[fid].rooms
+    return None
+    
 
 @app.get("/smarthouse/floor/{fid}/room/{rid}")
 def read_room(fid: int, rid: int, response: Response):
-    return smart_house.floors[fid].rooms[rid]
-
+    room = []
+    if(fid < 0 or fid > len(smart_house.floors)-1):
+        response.status_code = status.HTTP_404_NOT_FOUND
+    else:
+        for room_ in smart_house.floors[fid].rooms:
+            if(room_.rid == rid):
+                room = room_
+        if(room == []):
+            response.status_code = status.HTTP_404_NOT_FOUND
+        else:
+            return room
+    return None
 
 @app.get("/smarthouse/device")
 def read_devices():
@@ -68,12 +85,20 @@ def read_devices():
 @app.get("/smarthouse/device/{did}")
 def read_room(did: int, response: Response):
     device = []
+
     for floor in smart_house.floors:
         for room in floor.rooms:
             for device_ in room.devices:
                 if(device_.did == did):
                     device = device_
-    return device
+    if (device == []):
+        response.status_code = status.HTTP_404_NOT_FOUND
+    else:
+            return device
+    return None
+
+
+
 
 
 
